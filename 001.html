@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cyber Surge - Pratyush</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background: black;
+      color: #0f0;
+      font-family: 'Courier New', monospace;
+      overflow-x: hidden;
+      position: relative;
+      height: 100vh;
+      overflow-y: hidden;
+    }
+
+    /* Rain of Lines full screen background */
+    .rain-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 0; /* behind everything */
+      overflow: hidden;
+      background: transparent;
+    }
+
+    .rain-line {
+      position: absolute;
+      width: 2px;
+      height: 20px;
+      background: cyan;
+      opacity: 0.3;
+      animation-name: fall;
+      animation-timing-function: linear;
+      animation-iteration-count: infinite;
+      filter: drop-shadow(0 0 4px cyan);
+      border-radius: 1px;
+    }
+
+    @keyframes fall {
+      0% {
+        top: -20px;
+        opacity: 0;
+      }
+      10% {
+        opacity: 0.3;
+      }
+      100% {
+        top: 100vh;
+        opacity: 0;
+      }
+    }
+
+    /* HEADER */
+    header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background: black;
+      padding: 10px 20px;
+      border-bottom: 2px solid red;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      z-index: 9999;
+    }
+    header h1 {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: red;
+    }
+    .header-btns button {
+      background: transparent;
+      border: 1px solid cyan;
+      padding: 5px 10px;
+      color: cyan;
+      font-size: 0.9rem;
+      cursor: pointer;
+      margin-right: 10px;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+    .header-btns button:hover {
+      background: cyan;
+      color: black;
+    }
+
+    /* MOUSE GLOW */
+    .mouse-glow {
+      position: fixed;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      pointer-events: none;
+      background: radial-gradient(circle, rgba(0,255,255,0.3), transparent 60%);
+      mix-blend-mode: lighten;
+      z-index: 10000;
+      transition: transform 0.1s ease;
+    }
+
+    /* TRAIL CIRCLES */
+    .mouse-trail {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255, 0, 0, 0.6);
+      pointer-events: none;
+      z-index: 9999;
+      animation: fadeTrail 1s linear forwards;
+    }
+
+    @keyframes fadeTrail {
+      0% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(0.5);
+      }
+    }
+
+    /* PARALLAX BASE SETUP */
+    .parallax-container {
+      position: relative;
+      perspective: 1000px;
+      height: 100vh;
+      overflow: hidden;
+      z-index: 10; /* above rain */
+    }
+    .parallax-layer {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      will-change: transform;
+      transition: transform 0.1s ease-out;
+    }
+
+    #layer3 {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: cyan;
+      text-shadow: 0 0 10px cyan;
+      text-align: center;
+      padding: 0 20px;
+    }
+
+    #animatedText span {
+      display: inline-block;
+      animation: typing 2s steps(30) forwards;
+      white-space: nowrap;
+      overflow: hidden;
+      border-right: 2px solid cyan;
+    }
+
+    #description {
+      font-size: 1rem;
+      color: #aaa;
+      margin-top: 10px;
+    }
+
+    #introText {
+      font-size: 1rem;
+      color: #ccc;
+      margin-top: 20px;
+      max-width: 600px;
+      animation: typing 4s steps(80) 2s forwards;
+      overflow-wrap: break-word;
+      border-right: 2px solid cyan;
+      white-space: normal; /* allow line breaks */
+    }
+
+    .social-icons {
+      margin-top: 20px;
+      display: flex;
+      gap: 20px;
+      font-size: 1.5rem;
+    }
+    .social-icons a {
+      color: cyan;
+      transition: color 0.3s;
+    }
+    .social-icons a:hover {
+      color: red;
+    }
+
+    .profile-image {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      margin-bottom: 20px;
+      box-shadow: 0 0 20px red, 0 0 40px blue;
+      animation: orbit 6s linear infinite;
+    }
+
+    @keyframes orbit {
+      0% {
+        box-shadow: 0 0 20px red, 0 0 40px blue;
+      }
+      50% {
+        box-shadow: 0 0 40px blue, 0 0 20px red;
+      }
+      100% {
+        box-shadow: 0 0 20px red, 0 0 40px blue;
+      }
+    }
+
+    @keyframes typing {
+      from {
+        width: 0;
+      }
+      to {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Rain Background Container -->
+  <div class="rain-container" id="rainContainer"></div>
+
+  <!-- HEADER TOP BAR -->
+  <header>
+    <h1>PRATYUSH</h1>
+    <div class="header-btns">
+      <button>QUALIFICATION</button>
+      <button>EXPERIENCE</button>
+      <button>LOVE</button>
+    </div>
+  </header>
+
+  <!-- PARALLAX + MAIN CONTENT -->
+  <div class="parallax-container">
+    <div class="parallax-layer" id="layer1"></div>
+    <div class="parallax-layer" id="layer2"></div>
+    <div class="parallax-layer" id="layer3">
+      <img src="https://i.postimg.cc/fLs7dzNB/5-ZG-y-Eqr-400x400.jpg" class="profile-image" alt="Profile Pic" />
+      <div id="animatedText"><span>HEY, I'M PRATYUSH</span></div>
+      <div id="description">Game Dev • Web Dev • PCM Student</div>
+      <div id="introText">
+        Hello guyz , I'm Pratyush from XI , a web devloper as well as game devloper , present here to proove that skill matter then books stuff , so build
+        skill
+      </div>
+      <div class="social-icons">
+        <a href="https://t.me/high_def_renderpipe_line" target="_blank" rel="noopener noreferrer"
+          ><i class="fab fa-telegram"></i
+        ></a>
+        <a href="https://www.instagram.com/pixel.0_0.pr4tyush/" target="_blank" rel="noopener noreferrer"
+          ><i class="fab fa-instagram"></i
+        ></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Glow Circle -->
+  <div class="mouse-glow" id="mouseGlow"></div>
+
+  <script>
+    const glow = document.getElementById('mouseGlow');
+    const parallaxLayers = document.querySelectorAll('.parallax-layer');
+    const animatedText = document.getElementById('animatedText');
+
+    document.addEventListener('mousemove', (e) => {
+      glow.style.transform = `translate(${e.clientX - 50}px, ${e.clientY - 50}px)`;
+
+      const x = (window.innerWidth / 2 - e.clientX) / 40;
+      const y = (window.innerHeight / 2 - e.clientY) / 40;
+      parallaxLayers.forEach((layer, index) => {
+        layer.style.transform = `translate3d(${x * (index + 1)}px, ${y * (index + 1)}px, 0)`;
+      });
+
+      const textMoveX = (e.clientX - window.innerWidth / 2) / 40;
+      const textMoveY = (e.clientY - window.innerHeight / 2) / 40;
+      animatedText.style.transform = `translate(${textMoveX}px, ${textMoveY}px)`;
+
+      const trail = document.createElement('div');
+      trail.classList.add('mouse-trail');
+      trail.style.left = `${e.pageX}px`;
+      trail.style.top = `${e.pageY}px`;
+      document.body.appendChild(trail);
+      setTimeout(() => trail.remove(), 1000);
+    });
+
+    // Generate rain lines dynamically
+    const rainContainer = document.getElementById('rainContainer');
+    const numberOfLines = 60; // increase for denser rain
+
+    for (let i = 0; i < numberOfLines; i++) {
+      const line = document.createElement('div');
+      line.classList.add('rain-line');
+
+      // random horizontal position across full width
+      line.style.left = `${Math.random() * window.innerWidth}px`;
+
+      // random animation duration between 1.5s and 4s
+      line.style.animationDuration = `${1.5 + Math.random() * 2.5}s`;
+
+      // random animation delay to stagger start times
+      line.style.animationDelay = `${Math.random() * 4}s`;
+
+      rainContainer.appendChild(line);
+    }
+  </script>
+</body>
+</html>
